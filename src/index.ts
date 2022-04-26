@@ -1,14 +1,19 @@
-require("dotenv").config();
+/* eslint-disable import/first */
+import dotenv from "dotenv";
+
+dotenv.config();
 import Debug from "debug";
 import startServer from "./server/startServer";
-
-const serverPort = process.env.PORT as unknown as number;
+import server from "./apolloServer";
 
 const debug = Debug("artGallery-app:root");
-debug(serverPort);
+const serverPort = process.env.PORT as unknown as number;
+
 (async () => {
   try {
     await startServer(serverPort);
+    const { url } = await server.listen();
+    debug(`This server it's up and running ${url}`);
   } catch {
     debug("The server explodded lol");
   }
