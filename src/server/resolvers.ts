@@ -1,7 +1,12 @@
 const resolvers = {
   Query: {
     getPaintings() {
-      return "hi";
+      return [
+        {
+          name: "Monoliso",
+          author: "elpepe",
+        },
+      ];
     },
   },
 };
