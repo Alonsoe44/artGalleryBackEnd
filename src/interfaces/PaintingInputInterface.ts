@@ -1,5 +1,5 @@
 interface PaintingInputInterface {
-  paintingId: String;
+  _id: String;
 }
 
 export default PaintingInputInterface;
