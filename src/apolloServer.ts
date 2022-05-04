@@ -1,7 +1,8 @@
-import { ApolloServer } from "apollo-server";
-import typeDefs from "./server/schemas";
+import { ApolloServer } from "apollo-server-express";
+
 import resolvers from "./server/resolvers";
+import typeDefs from "./server/schemas";
 
-const server = new ApolloServer({ typeDefs, resolvers });
+const apolloServer = new ApolloServer({ typeDefs, resolvers });
 
-export default server;
+export default apolloServer;
