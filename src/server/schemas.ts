@@ -2,22 +2,25 @@ import { gql } from "apollo-server-express";
 
 const typeDefs = gql`
   scalar Upload
-  type Painting {
-    image: String!
-    title: String!
-    author: String
-    description: String
-    _id: String
-  }
-  input PaintingInput {
-    author: String
-    _id: String
-  }
 
   type File {
     filename: String!
     mimetype: String!
     encoding: String!
+  }
+
+  type Painting {
+    imageFile: Upload
+    title: String!
+    author: String
+    description: String
+    _id: String
+  }
+
+  input PaintingInput {
+    author: String
+    _id: String
+    imageFile: String
   }
 
   type Query {
@@ -26,12 +29,13 @@ const typeDefs = gql`
   }
 
   input NewPaintingInput {
-    image: String!
+    imageFile: Upload
     title: String!
     author: String
     description: String
     _id: String
   }
+
   type Mutation {
     # Multiple uploads are supported. See graphql-upload docs for details.
     newPainting(input: NewPaintingInput): Painting!
