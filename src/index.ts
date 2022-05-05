@@ -8,7 +8,6 @@ import startServerAsync from "./server/startServer";
 import connectDataBase from "./database";
 
 const debug = Debug("artGallery-app:root");
-const serverPort = process.env.PORT as unknown as number;
 const connectionString = process.env.LOGIN_CREDENTIALS as unknown as string;
 
 (async () => {
