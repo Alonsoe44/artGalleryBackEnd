@@ -1,7 +1,7 @@
 import { Schema, model } from "mongoose";
 
 const PaintingSchema = new Schema({
-  image: {
+  imageUrl: {
     type: String,
     required: true,
   },

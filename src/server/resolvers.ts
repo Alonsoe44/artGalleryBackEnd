@@ -1,25 +1,17 @@
 /* eslint-disable no-underscore-dangle */
-import { debug } from "console";
 import fs from "fs";
 import { GraphQLUpload } from "graphql-upload";
 import { finished } from "stream/promises";
-import { getStorage, ref, uploadBytes } from "firebase/storage";
+import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
 import path from "path";
+import Debug from "debug";
 import PaintingModel from "../database/models/Paintings";
 import InputInterface from "../interfaces/InputInterface";
 import fireApp from "./firebase";
 
-const storage = getStorage(fireApp);
-interface imageData {
-  createReadStream: () => any;
-  filename: String;
-  mimetype: String;
-  encoding: String;
-}
+const debug = Debug("artGallery-app:resolvers");
 
-interface sillyInterface {
-  file: imageData;
-}
+const storage = getStorage(fireApp);
 
 const resolvers = {
   Query: {
@@ -33,32 +25,37 @@ const resolvers = {
   Mutation: {
     newPainting: async (_: string, { input }: InputInterface) => {
       (input.imageFile as any).then(async (data) => {
-        console.log(data.filename);
         const stream = data.createReadStream(
           path.join("uploads", data.filename)
         );
-        const refStorage = ref(storage, path.join("paintings", data.filename));
+
         const out = fs.createWriteStream(path.join("uploads", data.filename));
         stream.pipe(out);
         await finished(out);
-        debug(data);
-        debug(stream);
+
         fs.readFile(
           path.join("uploads", data.filename),
-          (error, folderData) => {
-            if (error) {
-              return { error };
-            }
-            console.log(folderData);
-            console.log("abouve you");
-            uploadBytes(refStorage, folderData).then(() =>
-              console.log("Todo perfect")
+          async (error, folderData) => {
+            const refStorage = ref(
+              storage,
+              path.join("paintings", data.filename)
             );
-            return " hola";
+            await uploadBytes(refStorage, folderData);
+
+            fs.unlink(path.join("uploads", data.filename), () =>
+              debug("Uploaded and deleted")
+            );
+            const imageUrl = await getDownloadURL(refStorage);
+            PaintingModel.create({
+              title: input.title,
+              imageUrl,
+              description: input.description,
+              author: input.author,
+            });
           }
         );
       });
-      return { title: "lol i am fake" };
+      return { status: "Painting created" };
     },
   },
 };
