@@ -1,32 +1,13 @@
+import { mergeTypeDefs } from "@graphql-tools/merge";
 import { gql } from "apollo-server-express";
+import { singlePaintingDef, singlePaintingResolvers } from "./singlePainting";
 
-const typeDefs = gql`
+const querysMutations = gql`
   scalar Upload
-
-  type Painting {
-    imageUrl: Upload
-    title: String!
-    author: String
-    description: String
-    _id: String
-  }
-
-  input PaintingInput {
-    author: String
-    _id: String
-  }
 
   type Query {
     getPaintings: [Painting]
     getPainting(input: PaintingInput): Painting
-  }
-
-  input NewPaintingInput {
-    imageFile: Upload
-    title: String!
-    author: String
-    description: String
-    _id: String
   }
 
   type Mutation {
@@ -35,4 +16,8 @@ const typeDefs = gql`
   }
 `;
 
-export default typeDefs;
+const rootSchema = {
+  typeDefs: mergeTypeDefs([querysMutations, singlePaintingDef]),
+  resolvers: singlePaintingResolvers,
+};
+export default rootSchema;

@@ -2,18 +2,42 @@
 import fs from "fs";
 import { GraphQLUpload } from "graphql-upload";
 import { finished } from "stream/promises";
-import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
+import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import path from "path";
 import Debug from "debug";
+import gql from "graphql-tag";
 import PaintingModel from "../database/models/Paintings";
 import InputInterface from "../interfaces/InputInterface";
-import fireApp from "./firebase";
+import storage from "./firebase";
 
 const debug = Debug("artGallery-app:resolvers");
 
-const storage = getStorage(fireApp);
+const singlePaintingDef = gql`
+  scalar Upload
 
-const resolvers = {
+  type Painting {
+    imageUrl: Upload
+    title: String!
+    author: String
+    description: String
+    _id: String
+  }
+
+  input PaintingInput {
+    author: String
+    _id: String
+  }
+
+  input NewPaintingInput {
+    imageFile: Upload
+    title: String!
+    author: String
+    description: String
+    _id: String
+  }
+`;
+
+const singlePaintingResolvers = {
   Query: {
     getPaintings: async () => PaintingModel.find(),
     getPainting: async (_: string, { input }: InputInterface) =>
@@ -60,4 +84,4 @@ const resolvers = {
   },
 };
 
-export default resolvers;
+export { singlePaintingDef, singlePaintingResolvers };
