@@ -1,8 +1,14 @@
 /* eslint-disable no-underscore-dangle */
+import sharp from "sharp";
 import fs from "fs";
 import { GraphQLUpload } from "graphql-upload";
 import { finished } from "stream/promises";
-import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
+import {
+  deleteObject,
+  getDownloadURL,
+  ref,
+  uploadBytes,
+} from "firebase/storage";
 import path from "path";
 import Debug from "debug";
 import gql from "graphql-tag";
@@ -16,13 +22,15 @@ const singlePaintingDef = gql`
   scalar Upload
 
   type Painting {
-    imageUrl: Upload
+    imageUrl: String!
     title: String!
     author: String
     description: String
     _id: String
   }
-
+  type Message {
+    message: String!
+  }
   input PaintingInput {
     author: String
     _id: String
@@ -30,10 +38,15 @@ const singlePaintingDef = gql`
 
   input NewPaintingInput {
     imageFile: Upload
-    title: String!
+    title: String
     author: String
     description: String
     _id: String
+    imageUrl: String
+  }
+
+  input PaintingIdInput {
+    _id: String!
   }
 `;
 
@@ -47,39 +60,52 @@ const singlePaintingResolvers = {
   Upload: GraphQLUpload,
 
   Mutation: {
-    newPainting: async (_: string, { input }: InputInterface) => {
-      (input.imageFile as any).then(async (data) => {
-        const stream = data.createReadStream(
-          path.join("uploads", data.filename)
-        );
+    newPainting: async (_: string, { input }: InputInterface) =>
+      new Promise((resolve) => {
+        (input.imageFile as any).then(async (data) => {
+          const stream = data.createReadStream(
+            path.join("uploads", data.filename)
+          );
 
-        const out = fs.createWriteStream(path.join("uploads", data.filename));
-        stream.pipe(out);
-        await finished(out);
+          const out = fs.createWriteStream(path.join("uploads", data.filename));
+          stream.pipe(out);
+          await finished(out);
 
-        fs.readFile(
-          path.join("uploads", data.filename),
-          async (error, folderData) => {
-            const refStorage = ref(
-              storage,
-              path.join("paintings", data.filename)
-            );
-            await uploadBytes(refStorage, folderData);
+          await fs.readFile(
+            path.join("uploads", data.filename),
+            async (error, folderData) => {
+              const refStorage = ref(
+                storage,
+                path.join("paintings", data.filename)
+              );
 
-            fs.unlink(path.join("uploads", data.filename), () =>
-              debug("Uploaded and deleted")
-            );
-            const imageUrl = await getDownloadURL(refStorage);
-            PaintingModel.create({
-              title: input.title,
-              imageUrl,
-              description: input.description,
-              author: input.author,
-            });
-          }
-        );
-      });
-      return { status: "Painting created" };
+              const formatedData = await sharp(folderData).webp().toBuffer();
+              await uploadBytes(refStorage, formatedData);
+
+              fs.unlink(path.join("uploads", data.filename), () =>
+                debug("Uploaded image")
+              );
+              resolve({ message: "Painting created" });
+              const imageUrl = await getDownloadURL(refStorage);
+              await PaintingModel.create({
+                title: input.title,
+                imageUrl,
+                description: input.description,
+                author: input.author,
+              });
+            }
+          );
+        });
+      }),
+    deletePainting: async (_: string, { input }: any) => {
+      const imageRef = ref(storage, input.imageUrl);
+      deleteObject(imageRef).then(() => console.log("deleted"));
+      await PaintingModel.findByIdAndDelete(input._id);
+      return { message: "The painting was deleted" };
+    },
+    updatePainting: async (_: string, { input }: any) => {
+      await PaintingModel.findByIdAndUpdate(input._id, { ...input });
+      return { message: "The painting was updated" };
     },
   },
 };

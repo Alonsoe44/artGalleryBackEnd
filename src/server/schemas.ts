@@ -12,7 +12,9 @@ const querysMutations = gql`
 
   type Mutation {
     # Multiple uploads are supported. See graphql-upload docs for details.
-    newPainting(input: NewPaintingInput): Painting!
+    newPainting(input: NewPaintingInput): Message!
+    deletePainting(input: NewPaintingInput): Message!
+    updatePainting(input: NewPaintingInput): Message!
   }
 `;
 
