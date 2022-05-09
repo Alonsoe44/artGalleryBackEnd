@@ -21,6 +21,7 @@ module.exports = {
         tsx: "never",
       },
     ],
+    "no-underscore-dangle": "off",
   },
   settings: {
     "import/resolver": {
