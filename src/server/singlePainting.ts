@@ -16,7 +16,7 @@ import PaintingModel from "../database/models/Paintings";
 import InputInterface from "../interfaces/InputInterface";
 import storage from "./firebase";
 
-const debug = Debug("artGallery-app:resolvers");
+const debug = Debug("artGallery-app:Painting");
 
 const singlePaintingDef = gql`
   scalar Upload
@@ -99,7 +99,7 @@ const singlePaintingResolvers = {
       }),
     deletePainting: async (_: string, { input }: any) => {
       const imageRef = ref(storage, input.imageUrl);
-      deleteObject(imageRef).then(() => console.log("deleted"));
+      deleteObject(imageRef).then(() => debug("deleted"));
       await PaintingModel.findByIdAndDelete(input._id);
       return { message: "The painting was deleted" };
     },
