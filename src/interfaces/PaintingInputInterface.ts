@@ -1,12 +1,12 @@
 import FileInterface from "./FileInterface";
 
 interface PaintingInputInterface {
-  _id: String;
+  _id: string;
   imageFile?: FileInterface;
-  title: String;
-  description: String;
-  author: String;
-  imageUrl?: String;
+  title: string;
+  description: string;
+  author: string;
+  imageUrl?: string;
 }
 
 export default PaintingInputInterface;

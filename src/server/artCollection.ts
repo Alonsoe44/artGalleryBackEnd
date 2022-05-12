@@ -1,21 +1,24 @@
 import { gql } from "apollo-server-core";
-import Debug from "debug";
-import ArtCollectionModel from "../database/models/ArtCollections";
+import ArtCollectionModel from "../database/models/ArtCollectionModel";
 
-const debug = Debug("artGallery-app:ArtCollection");
 const artCollectionDef = gql`
   type ArtCollection {
     title: String!
     author: String!
     smallDescription: String
-    description: String
+    description: String!
     bannerImage: String
-    paintings: String
+    paintings: [String]
     _id: String
   }
   input ArtCollectionInput {
-    _id: String
+    title: String
     author: String
+    smallDescription: String
+    description: String
+    bannerImage: String
+    paintings: [String]
+    _id: String
   }
 `;
 
@@ -24,6 +27,21 @@ const artCollectionResolvers = {
     getArtCollection: async (_: string, { input }) =>
       ArtCollectionModel.findById({ _id: input._id }),
     getArtCollections: async () => ArtCollectionModel.find(),
+  },
+
+  Mutation: {
+    createArtCollection: async (_: string, { input }) => {
+      await ArtCollectionModel.create(input);
+      return { message: "Object created" };
+    },
+    deleteArtCollection: async (_: string, { input }) => {
+      await ArtCollectionModel.findByIdAndDelete(input._id);
+      return { message: "The art collection was deleted" };
+    },
+    updateArtCollection: async (_: string, { input }: any) => {
+      await ArtCollectionModel.findByIdAndUpdate(input._id, { ...input });
+      return { message: "The art collection was updated" };
+    },
   },
 };
 
