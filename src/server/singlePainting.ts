@@ -12,7 +12,7 @@ import {
 import path from "path";
 import Debug from "debug";
 import gql from "graphql-tag";
-import PaintingModel from "../database/models/Paintings";
+import PaintingModel from "../database/models/PaintingModel";
 import InputInterface from "../interfaces/InputInterface";
 import storage from "./firebase";
 
@@ -31,22 +31,14 @@ const singlePaintingDef = gql`
   type Message {
     message: String!
   }
-  input PaintingInput {
-    author: String
-    _id: String
-  }
 
-  input NewPaintingInput {
+  input PaintingInput {
     imageFile: Upload
     title: String
     author: String
     description: String
     _id: String
     imageUrl: String
-  }
-
-  input PaintingIdInput {
-    _id: String!
   }
 `;
 
@@ -73,7 +65,7 @@ const singlePaintingResolvers = {
 
           await fs.readFile(
             path.join("uploads", data.filename),
-            async (error, folderData) => {
+            async (_error, folderData) => {
               const refStorage = ref(
                 storage,
                 path.join("paintings", data.filename)
@@ -87,7 +79,7 @@ const singlePaintingResolvers = {
               );
               resolve({ message: "Painting created" });
               const imageUrl = await getDownloadURL(refStorage);
-              await PaintingModel.create({
+              PaintingModel.create({
                 title: input.title,
                 imageUrl,
                 description: input.description,

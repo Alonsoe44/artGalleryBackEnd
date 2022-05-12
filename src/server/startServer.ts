@@ -8,7 +8,7 @@ import apolloServer from "../apolloServer";
 
 const debug = Debug("artGallery-app:startServer");
 
-const startServerAsync = async () => {
+const startServer = async () => {
   await apolloServer.start();
   const app = express();
   app.use(cors());
@@ -21,4 +21,4 @@ const startServerAsync = async () => {
   debug(`🚀 Server ready at http://localhost:4000${apolloServer.graphqlPath}`);
 };
 
-export default startServerAsync;
+export default startServer;

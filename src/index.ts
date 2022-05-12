@@ -4,7 +4,7 @@ import dotenv from "dotenv";
 dotenv.config();
 import Debug from "debug";
 
-import startServerAsync from "./server/startServer";
+import startServer from "./server/startServer";
 import connectDataBase from "./database";
 
 const debug = Debug("artGallery-app:root");
@@ -13,7 +13,7 @@ const connectionString = process.env.LOGIN_CREDENTIALS as unknown as string;
 (async () => {
   try {
     await connectDataBase(connectionString);
-    await startServerAsync();
+    await startServer();
   } catch {
     debug("The server explodded lol");
   }
