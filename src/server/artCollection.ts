@@ -26,7 +26,9 @@ const artCollectionResolvers = {
   Query: {
     getArtCollection: async (_: string, { input }) =>
       ArtCollectionModel.findById({ _id: input._id }),
-    getArtCollections: async () => ArtCollectionModel.find(),
+    getArtCollections: async () => (await ArtCollectionModel.find()).reverse,
+    getLatestArtCollection: async () =>
+      (await ArtCollectionModel.find()).reverse()[0],
   },
 
   Mutation: {
