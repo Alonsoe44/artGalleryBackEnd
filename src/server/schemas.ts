@@ -11,6 +11,7 @@ const querysMutations = gql`
     getPainting(input: PaintingInput): Painting
     getArtCollections: [ArtCollection]
     getArtCollection(input: ArtCollectionInput): ArtCollection
+    getLatestArtCollection: ArtCollection
   }
 
   type Mutation {
