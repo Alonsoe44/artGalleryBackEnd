@@ -2,13 +2,18 @@ import { gql } from "apollo-server-core";
 import ArtCollectionModel from "../database/models/ArtCollectionModel";
 
 const artCollectionDef = gql`
+  type PaintingId {
+    value: String
+  }
+  union PaintingModes = PaintingId | Painting
+
   type ArtCollection {
     title: String!
     author: String!
     smallDescription: String
     description: String!
     bannerImage: String
-    paintings: [String]
+    paintings: [PaintingModes]
     _id: String
   }
   input ArtCollectionInput {
@@ -23,12 +28,24 @@ const artCollectionDef = gql`
 `;
 
 const artCollectionResolvers = {
+  PaintingModes: {
+    __resolveType(obj) {
+      if (obj.value) {
+        return "CustomString";
+      }
+      if (obj.title) return "Painting";
+      return "error";
+    },
+  },
+
   Query: {
     getArtCollection: async (_: string, { input }) =>
-      ArtCollectionModel.findById({ _id: input._id }),
+      (await ArtCollectionModel.findById({ _id: input._id })).populate(
+        "paintings"
+      ),
     getArtCollections: async () => (await ArtCollectionModel.find()).reverse,
     getLatestArtCollection: async () =>
-      (await ArtCollectionModel.find()).reverse()[0],
+      (await ArtCollectionModel.find().populate("paintings")).reverse()[0],
   },
 
   Mutation: {
