@@ -43,7 +43,7 @@ const artCollectionResolvers = {
       (await ArtCollectionModel.findById({ _id: input._id })).populate(
         "paintings"
       ),
-    getArtCollections: async () => (await ArtCollectionModel.find()).reverse,
+    getArtCollections: async () => (await ArtCollectionModel.find()).reverse(),
     getLatestArtCollection: async () =>
       (await ArtCollectionModel.find().populate("paintings")).reverse()[0],
   },
