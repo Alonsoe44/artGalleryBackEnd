@@ -1,6 +1,7 @@
 import { mergeResolvers, mergeTypeDefs } from "@graphql-tools/merge";
 import { gql } from "apollo-server-express";
 import { artCollectionDef, artCollectionResolvers } from "./artCollection";
+import { authorDef, authorResolvers } from "./author";
 import { singlePaintingDef, singlePaintingResolvers } from "./singlePainting";
 
 const querysMutations = gql`
@@ -12,6 +13,8 @@ const querysMutations = gql`
     getArtCollections: [ArtCollection]
     getArtCollection(input: ArtCollectionInput): ArtCollection
     getLatestArtCollection: ArtCollection
+    getAuthor: Author
+    getAuthors: [Author]
   }
 
   type Mutation {
@@ -21,6 +24,9 @@ const querysMutations = gql`
     createArtCollection(input: ArtCollectionInput): Message!
     deleteArtCollection(input: ArtCollectionInput): Message!
     updateArtCollection(input: ArtCollectionInput): Message!
+    createAuthor(input: AuthorInput): Message!
+    deleteAuthor(input: AuthorInput): Message!
+    updateAuthor(input: AuthorInput): Message!
   }
 `;
 
@@ -29,7 +35,12 @@ const rootSchema = {
     querysMutations,
     singlePaintingDef,
     artCollectionDef,
+    authorDef,
   ]),
-  resolvers: mergeResolvers([singlePaintingResolvers, artCollectionResolvers]),
+  resolvers: mergeResolvers([
+    singlePaintingResolvers,
+    artCollectionResolvers,
+    authorResolvers,
+  ]),
 };
 export default rootSchema;
