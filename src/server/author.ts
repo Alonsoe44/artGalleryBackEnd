@@ -5,13 +5,13 @@ const authorDef = gql`
   type Author {
     name: String
     textDescription: String
-    image: String
+    paintings: [Painting]
     _id: String
   }
   input AuthorInput {
     name: String
     textDescription: String
-    image: String
+    paintings: [String]
     _id: String
   }
 `;
@@ -19,8 +19,9 @@ const authorDef = gql`
 const authorResolvers = {
   Query: {
     getAuthor: async (_: string, { input }) =>
-      AuthorModel.findById({ _id: input._id }),
-    getAuthors: async () => (await AuthorModel.find()).reverse(),
+      AuthorModel.findById({ _id: input._id }).populate("paintings"),
+    getAuthors: async () =>
+      (await AuthorModel.find().populate("paintings")).reverse(),
   },
 
   Mutation: {

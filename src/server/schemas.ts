@@ -13,7 +13,7 @@ const querysMutations = gql`
     getArtCollections: [ArtCollection]
     getArtCollection(input: ArtCollectionInput): ArtCollection
     getLatestArtCollection: ArtCollection
-    getAuthor: Author
+    getAuthor(input: AuthorInput): Author
     getAuthors: [Author]
   }
 
